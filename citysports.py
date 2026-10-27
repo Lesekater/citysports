@@ -7,9 +7,11 @@ import sys
 import logging
 import asyncio
 import threading
+import os
 from random import randrange
 import struct
 from typing import Any, Dict, Union
+from dotenv import load_dotenv
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak import BleakClient
 from bless import (  # type: ignore
@@ -264,8 +266,14 @@ async def run(loop):
 
 
 async def repeater():  # Here
+    load_dotenv()
+    treadmill_mac = os.getenv("TREADMILL_MAC")
+    if not treadmill_mac:
+        raise RuntimeError(
+            "TREADMILL_MAC is not set. Configure it in .env or the environment."
+        )
+
     loop = asyncio.get_running_loop()
-    treadmill_mac = "84:C2:E4:54:E0:40"
     tasks = [loop.create_task(notify_(treadmill_mac)), loop.create_task(run(loop))]
     try:
         await asyncio.gather(*tasks)
