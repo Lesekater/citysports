@@ -73,12 +73,11 @@ fmf_PowerMeasurementSupported = 1 << 14
 fmf_PowerTargetSettingSupported = 1 << 3
 fmf_IndoorBikeSimulationParametersSupported = 1 << 13
 # FM Service, section 4.3 p 19:                         features (32 bits), Target settings features (32 bits)
+fmf_TotalDistanceSupported = 1 << 2
 fmf_Info = struct.pack(
     little_endian + unsigned_long * 2,
-    fmf_CadenceSupported
-    | fmf_HeartRateMeasurementSupported
-    | fmf_PowerMeasurementSupported,
-    fmf_PowerTargetSettingSupported | fmf_IndoorBikeSimulationParametersSupported,
+    fmf_TotalDistanceSupported,
+    0,
 )
 
 cTreadmillDataUUID = "00002acd-0000-1000-8000-00805f9b34fb"
@@ -116,6 +115,7 @@ ibd_Info = struct.pack(
     456,
     89,
 )
+tmf_TotalDistancePresent = 1 << 2
 
 cFitnessMachineStatusUUID = "00002ada-0000-1000-8000-00805f9b34fb"
 cFitnessMachineStatusName = "Fitness Machine Status"

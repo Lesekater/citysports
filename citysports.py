@@ -32,7 +32,6 @@ queue = []
 CitySports_codes = {
     "stop": "a1030105",
     "start": "a1030101",
-    "pause": "a1030101",
     "changeSpeed": "a1010201",
     "changeIncli": "a1020202",
 }
@@ -99,6 +98,15 @@ def createCommand(speed):
             return speedup
     except:
         return None
+
+
+def createTreadmillData(speed_kmh: float, distance_m: float) -> bytearray:
+    flags = bc.tmf_TotalDistancePresent
+    speed_value = max(0, min(round(speed_kmh * 100), 0xFFFF))
+    distance_value = max(0, min(round(distance_m), 0xFFFFFF))
+    return bytearray(
+        struct.pack("<HH", flags, speed_value) + distance_value.to_bytes(3, "little")
+    )
 
 
 async def notify_(address, debug=True):
@@ -183,9 +191,9 @@ async def run(loop):
                     GATTAttributePermissions.readable
                     | GATTAttributePermissions.writeable
                 ),
-                "Value": bc.ibd_Info,  # Instantaneous Cadence, Power, HeartRate
-                "value": bc.ibd_Info,
-                "Description": bc.cIndoorBikeDataName,
+                "Value": createTreadmillData(0, 0),
+                "value": createTreadmillData(0, 0),
+                "Description": bc.cTreadmillDataName,
             },
             bc.cFitnessMachineStatusUUID: {
                 "Properties": (GATTCharacteristicProperties.notify),
@@ -196,19 +204,6 @@ async def run(loop):
                 "value": b"\x00\x00",  # Status as "sent" to Cycling Training Program
                 "Value": b"\x00\x00",
                 "Description": bc.cFitnessMachineStatusName,
-            },
-            bc.cFitnessMachineControlPointUUID: {
-                "Properties": (
-                    GATTCharacteristicProperties.write
-                    | GATTCharacteristicProperties.indicate
-                ),
-                "Permissions": (
-                    GATTAttributePermissions.readable
-                    | GATTAttributePermissions.writeable
-                ),
-                "Value": b"\x00\x00",  # Commands as received from Cycling Training Program
-                "value": b"\x00\x00",
-                "Description": bc.cFitnessMachineControlPointName,
             },
             bc.cSupportedPowerRangeUUID: {
                 "Properties": (GATTCharacteristicProperties.read),
@@ -252,9 +247,7 @@ async def run(loop):
     while Running:
         global speed
         # send = ( b'\x84\x24\xaa\xaa\x00\x00\x00\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00' )
-        send = struct.pack(
-            "<" + "H" * 8 + "?", 9348, int(speed * 100), 0, 0, 0, 0, 0, 0, 0
-        )
+        send = createTreadmillData(speed, _distance)
         logger.info(
             "[%s] Updating app : speed %s",
             datetime.datetime.now().strftime("%Y-%m-%YT%H:%M:%S.%fZ"),
