@@ -115,9 +115,10 @@ async def notify_(address, debug=True):
     result = ""
     start = time.time()
     _time = 0
-    async with BleakClient(address, timeout=10) as client:
+    async with BleakClient(address, timeout=300) as client:
         await client.start_notify(
-            "ffeeddcc-bbaa-9988-7766-554433221102", notification_handler
+            "ffeeddcc-bbaa-9988-7766-554433221102",
+            notification_handler,
         )
         while Running:
             if len(queue) > 0:
