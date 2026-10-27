@@ -249,8 +249,9 @@ async def run(loop):
         # send = ( b'\x84\x24\xaa\xaa\x00\x00\x00\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00' )
         send = createTreadmillData(speed, _distance)
         logger.info(
-            "[%s] Updating app : speed %s",
+            "[%s] Updating app : distance %s speed %s",
             datetime.datetime.now().strftime("%Y-%m-%YT%H:%M:%S.%fZ"),
+            _distance,
             speed,
         )
         # _speed = struct.pack('<h',int(speed*100))
